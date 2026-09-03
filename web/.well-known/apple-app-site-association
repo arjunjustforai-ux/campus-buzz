@@ -1,0 +1,8 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      { "appID": "REPLACE_TEAM_ID.app.campusbuzz.campusbuzz", "paths": ["/e/*", "/r/*", "/q/*", "/events/*", "/quests/*"] }
+    ]
+  }
+}

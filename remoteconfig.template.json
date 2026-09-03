@@ -1,0 +1,25 @@
+{
+  "parameters": {
+    "discovery_enabled": { "defaultValue": { "value": "true" }, "valueType": "BOOLEAN" },
+    "search_enabled": { "defaultValue": { "value": "true" }, "valueType": "BOOLEAN" },
+    "tribes_enabled": { "defaultValue": { "value": "true" }, "valueType": "BOOLEAN" },
+    "buzzcoins_enabled": { "defaultValue": { "value": "true" }, "valueType": "BOOLEAN" },
+    "qr_checkin_enabled": { "defaultValue": { "value": "true" }, "valueType": "BOOLEAN" },
+    "rewards_enabled": { "defaultValue": { "value": "true" }, "valueType": "BOOLEAN" },
+    "streaks_enabled": { "defaultValue": { "value": "true" }, "valueType": "BOOLEAN" },
+    "tribe_leaderboard_enabled": { "defaultValue": { "value": "true" }, "valueType": "BOOLEAN" },
+    "referrals_enabled": { "defaultValue": { "value": "true" }, "valueType": "BOOLEAN" },
+    "friends_enabled": { "defaultValue": { "value": "true" }, "valueType": "BOOLEAN" },
+    "personalized_feed_enabled": { "defaultValue": { "value": "true" }, "valueType": "BOOLEAN" },
+    "reviews_enabled": { "defaultValue": { "value": "true" }, "valueType": "BOOLEAN" },
+    "social_proof_enabled": { "defaultValue": { "value": "true" }, "valueType": "BOOLEAN" },
+    "campus_buzz_score_enabled": { "defaultValue": { "value": "true" }, "valueType": "BOOLEAN" },
+    "brand_quests_enabled": { "defaultValue": { "value": "true" }, "valueType": "BOOLEAN" },
+    "brand_dashboard_enabled": { "defaultValue": { "value": "true" }, "valueType": "BOOLEAN" },
+    "intercampus_events_enabled": { "defaultValue": { "value": "false" }, "valueType": "BOOLEAN" },
+    "premium_organizer_enabled": { "defaultValue": { "value": "true" }, "valueType": "BOOLEAN" },
+    "institutional_analytics_enabled": { "defaultValue": { "value": "true" }, "valueType": "BOOLEAN" },
+    "talent_profile_enabled": { "defaultValue": { "value": "false" }, "valueType": "BOOLEAN" }
+  },
+  "version": { "description": "CampusBuzz feature flag defaults" }
+}

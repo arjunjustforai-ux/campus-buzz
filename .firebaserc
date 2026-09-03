@@ -1,0 +1,8 @@
+{
+  "projects": {
+    "default": "demo-campusbuzz",
+    "dev": "demo-campusbuzz",
+    "staging": "campusbuzz-staging",
+    "prod": "campusbuzz-prod"
+  }
+}

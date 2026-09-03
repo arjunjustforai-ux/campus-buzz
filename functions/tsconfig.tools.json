@@ -1,0 +1,5 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": { "rootDir": ".", "outDir": "lib-tools", "noUnusedLocals": false },
+  "include": ["src", "tools"]
+}

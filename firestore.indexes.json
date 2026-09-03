@@ -1,0 +1,224 @@
+{
+  "indexes": [
+    { "collectionGroup": "events", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "participatingCampusIds", "arrayConfig": "CONTAINS" },
+      { "fieldPath": "status", "order": "ASCENDING" },
+      { "fieldPath": "startAt", "order": "ASCENDING" } ] },
+    { "collectionGroup": "events", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "campusId", "order": "ASCENDING" },
+      { "fieldPath": "status", "order": "ASCENDING" },
+      { "fieldPath": "startAt", "order": "ASCENDING" } ] },
+    { "collectionGroup": "events", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "tribeIds", "arrayConfig": "CONTAINS" },
+      { "fieldPath": "status", "order": "ASCENDING" },
+      { "fieldPath": "startAt", "order": "ASCENDING" } ] },
+    { "collectionGroup": "events", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "searchTokens", "arrayConfig": "CONTAINS" },
+      { "fieldPath": "status", "order": "ASCENDING" },
+      { "fieldPath": "startAt", "order": "ASCENDING" } ] },
+    { "collectionGroup": "events", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "clubId", "order": "ASCENDING" },
+      { "fieldPath": "startAt", "order": "DESCENDING" } ] },
+    { "collectionGroup": "events", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "clubId", "order": "ASCENDING" },
+      { "fieldPath": "startAt", "order": "ASCENDING" } ] },
+    { "collectionGroup": "events", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "organizerUid", "order": "ASCENDING" },
+      { "fieldPath": "startAt", "order": "DESCENDING" } ] },
+    { "collectionGroup": "events", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "campusId", "order": "ASCENDING" },
+      { "fieldPath": "reviewStatus", "order": "ASCENDING" },
+      { "fieldPath": "publishedAt", "order": "DESCENDING" } ] },
+    { "collectionGroup": "events", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "campusId", "order": "ASCENDING" },
+      { "fieldPath": "publishedAt", "order": "ASCENDING" } ] },
+    { "collectionGroup": "events", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "status", "order": "ASCENDING" },
+      { "fieldPath": "checkinClosesAt", "order": "ASCENDING" } ] },
+    { "collectionGroup": "events", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "status", "order": "ASCENDING" },
+      { "fieldPath": "endAt", "order": "ASCENDING" } ] },
+    { "collectionGroup": "events", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "campusId", "order": "ASCENDING" },
+      { "fieldPath": "startAt", "order": "ASCENDING" } ] },
+
+    { "collectionGroup": "rsvps", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "uid", "order": "ASCENDING" },
+      { "fieldPath": "status", "order": "ASCENDING" },
+      { "fieldPath": "startAt", "order": "ASCENDING" } ] },
+    { "collectionGroup": "rsvps", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "uid", "order": "ASCENDING" },
+      { "fieldPath": "startAt", "order": "DESCENDING" } ] },
+    { "collectionGroup": "rsvps", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "eventId", "order": "ASCENDING" },
+      { "fieldPath": "status", "order": "ASCENDING" },
+      { "fieldPath": "createdAt", "order": "ASCENDING" } ] },
+    { "collectionGroup": "rsvps", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "campusId", "order": "ASCENDING" },
+      { "fieldPath": "createdAt", "order": "ASCENDING" } ] },
+    { "collectionGroup": "rsvps", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "uid", "order": "ASCENDING" },
+      { "fieldPath": "status", "order": "ASCENDING" },
+      { "fieldPath": "startAt", "order": "ASCENDING" },
+      { "fieldPath": "eventId", "order": "ASCENDING" } ] },
+
+    { "collectionGroup": "checkins", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "uid", "order": "ASCENDING" },
+      { "fieldPath": "at", "order": "DESCENDING" } ] },
+    { "collectionGroup": "checkins", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "eventId", "order": "ASCENDING" },
+      { "fieldPath": "at", "order": "ASCENDING" } ] },
+    { "collectionGroup": "checkins", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "campusId", "order": "ASCENDING" },
+      { "fieldPath": "at", "order": "ASCENDING" } ] },
+    { "collectionGroup": "checkins", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "campusId", "order": "ASCENDING" },
+      { "fieldPath": "weekKey", "order": "ASCENDING" } ] },
+    { "collectionGroup": "checkins", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "clubId", "order": "ASCENDING" },
+      { "fieldPath": "at", "order": "DESCENDING" } ] },
+
+    { "collectionGroup": "event_feedback", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "eventId", "order": "ASCENDING" },
+      { "fieldPath": "status", "order": "ASCENDING" },
+      { "fieldPath": "at", "order": "DESCENDING" } ] },
+
+    { "collectionGroup": "coin_ledger", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "uid", "order": "ASCENDING" },
+      { "fieldPath": "createdAt", "order": "DESCENDING" } ] },
+    { "collectionGroup": "coin_ledger", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "uid", "order": "ASCENDING" },
+      { "fieldPath": "type", "order": "ASCENDING" },
+      { "fieldPath": "remaining", "order": "ASCENDING" },
+      { "fieldPath": "createdAt", "order": "ASCENDING" } ] },
+    { "collectionGroup": "coin_ledger", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "type", "order": "ASCENDING" },
+      { "fieldPath": "expired", "order": "ASCENDING" },
+      { "fieldPath": "expiresAt", "order": "ASCENDING" } ] },
+    { "collectionGroup": "coin_ledger", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "type", "order": "ASCENDING" },
+      { "fieldPath": "fifoApplied", "order": "ASCENDING" } ] },
+    { "collectionGroup": "coin_ledger", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "campusId", "order": "ASCENDING" },
+      { "fieldPath": "createdAt", "order": "ASCENDING" } ] },
+
+    { "collectionGroup": "rewards", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "campusId", "order": "ASCENDING" },
+      { "fieldPath": "status", "order": "ASCENDING" },
+      { "fieldPath": "coinCost", "order": "ASCENDING" } ] },
+    { "collectionGroup": "redemptions", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "uid", "order": "ASCENDING" },
+      { "fieldPath": "issuedAt", "order": "DESCENDING" } ] },
+    { "collectionGroup": "redemptions", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "vendorId", "order": "ASCENDING" },
+      { "fieldPath": "status", "order": "ASCENDING" },
+      { "fieldPath": "issuedAt", "order": "DESCENDING" } ] },
+    { "collectionGroup": "redemptions", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "vendorId", "order": "ASCENDING" },
+      { "fieldPath": "settlementMonth", "order": "ASCENDING" },
+      { "fieldPath": "settlementStatus", "order": "ASCENDING" } ] },
+    { "collectionGroup": "redemptions", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "rewardId", "order": "ASCENDING" },
+      { "fieldPath": "uid", "order": "ASCENDING" },
+      { "fieldPath": "status", "order": "ASCENDING" } ] },
+    { "collectionGroup": "redemptions", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "campusId", "order": "ASCENDING" },
+      { "fieldPath": "issuedAt", "order": "ASCENDING" } ] },
+    { "collectionGroup": "redemptions", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "campusId", "order": "ASCENDING" },
+      { "fieldPath": "status", "order": "ASCENDING" },
+      { "fieldPath": "issuedAt", "order": "DESCENDING" } ] },
+
+    { "collectionGroup": "referrals", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "referrerUid", "order": "ASCENDING" },
+      { "fieldPath": "signupAt", "order": "DESCENDING" } ] },
+    { "collectionGroup": "friendships", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "uids", "arrayConfig": "CONTAINS" },
+      { "fieldPath": "status", "order": "ASCENDING" } ] },
+
+    { "collectionGroup": "quests", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "campusIds", "arrayConfig": "CONTAINS" },
+      { "fieldPath": "status", "order": "ASCENDING" },
+      { "fieldPath": "endAt", "order": "ASCENDING" } ] },
+    { "collectionGroup": "quests", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "brandId", "order": "ASCENDING" },
+      { "fieldPath": "createdAt", "order": "DESCENDING" } ] },
+    { "collectionGroup": "quests", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "status", "order": "ASCENDING" },
+      { "fieldPath": "submittedAt", "order": "DESCENDING" } ] },
+    { "collectionGroup": "quest_completions", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "uid", "order": "ASCENDING" },
+      { "fieldPath": "status", "order": "ASCENDING" } ] },
+    { "collectionGroup": "quest_completions", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "questId", "order": "ASCENDING" },
+      { "fieldPath": "status", "order": "ASCENDING" } ] },
+    { "collectionGroup": "quest_completions", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "brandId", "order": "ASCENDING" },
+      { "fieldPath": "status", "order": "ASCENDING" } ] },
+    { "collectionGroup": "quest_completions", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "campusId", "order": "ASCENDING" },
+      { "fieldPath": "completedAt", "order": "ASCENDING" } ] },
+
+    { "collectionGroup": "notification_jobs", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "status", "order": "ASCENDING" },
+      { "fieldPath": "scheduledFor", "order": "ASCENDING" } ] },
+    { "collectionGroup": "notification_jobs", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "status", "order": "ASCENDING" },
+      { "fieldPath": "__name__", "order": "ASCENDING" } ] },
+    { "collectionGroup": "notification_jobs", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "uid", "order": "ASCENDING" },
+      { "fieldPath": "status", "order": "ASCENDING" } ] },
+    { "collectionGroup": "notification_delivery_logs", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "uid", "order": "ASCENDING" },
+      { "fieldPath": "category", "order": "ASCENDING" },
+      { "fieldPath": "dayKey", "order": "ASCENDING" },
+      { "fieldPath": "status", "order": "ASCENDING" } ] },
+    { "collectionGroup": "notification_delivery_logs", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "uid", "order": "ASCENDING" },
+      { "fieldPath": "at", "order": "DESCENDING" } ] },
+
+    { "collectionGroup": "memberships", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "campusId", "order": "ASCENDING" },
+      { "fieldPath": "status", "order": "ASCENDING" },
+      { "fieldPath": "tribeIds", "arrayConfig": "CONTAINS" } ] },
+    { "collectionGroup": "memberships", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "campusId", "order": "ASCENDING" },
+      { "fieldPath": "joinedAt", "order": "ASCENDING" } ] },
+    { "collectionGroup": "memberships", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "campusId", "order": "ASCENDING" },
+      { "fieldPath": "roles", "arrayConfig": "CONTAINS" } ] },
+    { "collectionGroup": "memberships", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "uid", "order": "ASCENDING" },
+      { "fieldPath": "campusId", "order": "ASCENDING" } ] },
+    { "collectionGroup": "memberships", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "campusId", "order": "ASCENDING" },
+      { "fieldPath": "requestedRoles", "order": "ASCENDING" } ] },
+
+    { "collectionGroup": "surveys", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "campusId", "order": "ASCENDING" },
+      { "fieldPath": "createdAt", "order": "DESCENDING" } ] },
+    { "collectionGroup": "metrics_daily", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "campusId", "order": "ASCENDING" },
+      { "fieldPath": "date", "order": "ASCENDING" } ] },
+    { "collectionGroup": "metrics_daily", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "campusId", "order": "ASCENDING" },
+      { "fieldPath": "date", "order": "DESCENDING" } ] },
+    { "collectionGroup": "pilot_metrics", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "campusId", "order": "ASCENDING" },
+      { "fieldPath": "weekKey", "order": "DESCENDING" } ] },
+    { "collectionGroup": "audit_logs", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "campusId", "order": "ASCENDING" },
+      { "fieldPath": "at", "order": "DESCENDING" } ] },
+    { "collectionGroup": "analytics_events", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "event", "order": "ASCENDING" },
+      { "fieldPath": "eventId", "order": "ASCENDING" } ] },
+    { "collectionGroup": "content_reports", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "campusId", "order": "ASCENDING" },
+      { "fieldPath": "status", "order": "ASCENDING" },
+      { "fieldPath": "createdAt", "order": "DESCENDING" } ] },
+    { "collectionGroup": "event_qr_sessions", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "campusId", "order": "ASCENDING" },
+      { "fieldPath": "active", "order": "ASCENDING" } ] }
+  ],
+  "fieldOverrides": []
+}
