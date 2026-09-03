@@ -1,0 +1,273 @@
+rules_version = '2';
+
+// CampusBuzz Firestore rules — DEFAULT DENY.
+// Principle: clients read what they are entitled to; every economy/security
+// sensitive write goes through Cloud Functions (Admin SDK bypasses these rules).
+// A client can NEVER: grant roles, touch ledgers/balances, write check-ins,
+// approve quests, edit reward inventory, read another campus's private data.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ------------------------------------------------------------------
+    // Helpers
+    // ------------------------------------------------------------------
+    function signedIn() { return request.auth != null; }
+    function uid() { return request.auth.uid; }
+    function userDoc() { return get(/databases/$(database)/documents/users/$(uid())); }
+    function userExists() { return exists(/databases/$(database)/documents/users/$(uid())); }
+    function isActiveUser() { return userExists() && userDoc().data.status == 'active'; }
+    function isSuperAdmin() { return userExists() && userDoc().data.get('superAdmin', false) == true; }
+    function membershipPath(campusId) { return /databases/$(database)/documents/memberships/$(campusId + '_' + uid()); }
+    function membership(campusId) { return get(membershipPath(campusId)).data; }
+    function isMember(campusId) {
+      return signedIn() && exists(membershipPath(campusId)) && membership(campusId).status == 'active';
+    }
+    function hasRole(campusId, role) { return isMember(campusId) && role in membership(campusId).roles; }
+    function isCampusAdmin(campusId) { return isSuperAdmin() || hasRole(campusId, 'campus_admin'); }
+    function isOrganizer(campusId) { return hasRole(campusId, 'organizer'); }
+    function isVendor(campusId) { return hasRole(campusId, 'vendor'); }
+    function affectedKeys() { return request.resource.data.diff(resource.data).affectedKeys(); }
+
+    // ------------------------------------------------------------------
+    // Users
+    // ------------------------------------------------------------------
+    match /users/{userId} {
+      // Own profile readable; other profiles readable only by same-campus members (limited fields enforced client-side; PII minimal).
+      allow get: if signedIn() && (uid() == userId || isSuperAdmin() ||
+        (resource.data.get('activeCampusId', '') != '' && isMember(resource.data.activeCampusId)));
+      allow list: if isSuperAdmin();
+      // Profile creation/onboarding happens via completeOnboarding (function). Client may only update safe fields.
+      allow update: if signedIn() && uid() == userId && isActiveUser()
+        && affectedKeys().hasOnly(['displayName', 'avatarUrl', 'tribeIds', 'primaryTribeId', 'notificationPrefs', 'privacy', 'fcmTokens', 'updatedAt', 'lastSeenAt', 'talentProfile'])
+        && request.resource.data.status == resource.data.status
+        && request.resource.data.get('superAdmin', false) == resource.data.get('superAdmin', false)
+        && (!('tribeIds' in affectedKeys()) || request.resource.data.tribeIds.size() >= 3);
+      allow create, delete: if false;
+    }
+
+    // ------------------------------------------------------------------
+    // Campuses / tribes / clubs / feature configs — public-ish reference data
+    // ------------------------------------------------------------------
+    match /campuses/{campusId} {
+      allow read: if signedIn();
+      allow write: if false; // provisionCampus / updateCampusConfig
+    }
+    match /tribes/{tribeId} {
+      allow read: if signedIn();
+      allow write: if false; // upsertTribe
+    }
+    match /clubs/{clubId} {
+      allow read: if signedIn();
+      allow write: if false; // upsertClub / setMembershipRole
+    }
+    match /feature_configs/{campusId} {
+      allow read: if signedIn();
+      allow write: if false;
+    }
+    match /economy_versions/{id} {
+      allow read: if signedIn() && isMember(resource.data.campusId);
+      allow write: if false;
+    }
+    match /entitlements/{id} {
+      allow read: if signedIn() && (isSuperAdmin() ||
+        (resource.data.subjectType == 'club' && isOrganizer(get(/databases/$(database)/documents/clubs/$(resource.data.subjectId)).data.campusId)) ||
+        (resource.data.subjectType == 'campus' && isCampusAdmin(resource.data.subjectId)) ||
+        (resource.data.subjectType == 'brand' && exists(/databases/$(database)/documents/brand_memberships/$(resource.data.subjectId + '_' + uid()))));
+      allow write: if false;
+    }
+
+    // ------------------------------------------------------------------
+    // Memberships (roles) — never client-writable
+    // ------------------------------------------------------------------
+    match /memberships/{membershipId} {
+      allow get: if signedIn() && (resource.data.uid == uid() || isCampusAdmin(resource.data.campusId) ||
+        (isOrganizer(resource.data.campusId)));
+      allow list: if signedIn() && (isCampusAdmin(resource.data.campusId) || isOrganizer(resource.data.campusId) || resource.data.uid == uid());
+      allow write: if false;
+    }
+
+    // ------------------------------------------------------------------
+    // Events — discoverable by members of participating campuses
+    // ------------------------------------------------------------------
+    match /events/{eventId} {
+      allow read: if signedIn() && (
+        isSuperAdmin()
+        || (resource.data.status in ['published', 'completed', 'cancelled']
+            && (isMember(resource.data.campusId) || (resource.data.participatingCampusIds.hasAny([userDoc().data.get('activeCampusId', '')]) && isMember(userDoc().data.activeCampusId))))
+        || (isOrganizer(resource.data.campusId) && (resource.data.organizerUid == uid() || resource.data.clubId in membership(resource.data.campusId).get('clubIds', [])))
+        || isCampusAdmin(resource.data.campusId)
+      );
+      allow write: if false; // createEvent / updateEvent / cancelEvent / closeEvent / reviewEvent
+    }
+    match /event_qr_sessions/{eventId} {
+      allow read: if signedIn() && isCampusAdmin(resource.data.campusId) || (signedIn() && isOrganizer(resource.data.campusId));
+      allow write: if false;
+    }
+
+    // ------------------------------------------------------------------
+    // RSVPs / check-ins / feedback — function-written; scoped reads
+    // ------------------------------------------------------------------
+    match /rsvps/{rsvpId} {
+      allow read: if signedIn() && (resource.data.uid == uid() || isCampusAdmin(resource.data.campusId) || isOrganizer(resource.data.campusId)
+        // friends who opted in
+        || (exists(/databases/$(database)/documents/friendships/$(friendshipId(uid(), resource.data.uid)))
+            && get(/databases/$(database)/documents/friendships/$(friendshipId(uid(), resource.data.uid))).data.status == 'accepted'
+            && get(/databases/$(database)/documents/users/$(resource.data.uid)).data.get('privacy', {}).get('showActivityToFriends', false) == true));
+      allow write: if false;
+    }
+    match /checkins/{checkinId} {
+      allow read: if signedIn() && (resource.data.uid == uid() || isCampusAdmin(resource.data.campusId) || isOrganizer(resource.data.campusId)
+        || (exists(/databases/$(database)/documents/friendships/$(friendshipId(uid(), resource.data.uid)))
+            && get(/databases/$(database)/documents/friendships/$(friendshipId(uid(), resource.data.uid))).data.status == 'accepted'
+            && get(/databases/$(database)/documents/users/$(resource.data.uid)).data.get('privacy', {}).get('showActivityToFriends', false) == true));
+      allow write: if false;
+    }
+    match /event_feedback/{feedbackId} {
+      // Published reviews are visible to members of the event's campus; anonymous reviews carry no displayName.
+      allow read: if signedIn() && (resource.data.uid == uid() || isCampusAdmin(resource.data.campusId)
+        || (resource.data.status == 'published' && isMember(resource.data.campusId)));
+      allow write: if false;
+    }
+
+    // ------------------------------------------------------------------
+    // BuzzCoins — read own; never client-writable
+    // ------------------------------------------------------------------
+    match /coin_ledger/{entryId} {
+      allow read: if signedIn() && (resource.data.uid == uid() || isCampusAdmin(resource.data.campusId));
+      allow write: if false;
+    }
+    match /coin_balances/{userId} {
+      allow read: if signedIn() && (uid() == userId || isCampusAdmin(resource.data.campusId));
+      allow write: if false;
+    }
+    match /participation_stats/{userId} {
+      allow read: if signedIn() && (uid() == userId || isCampusAdmin(resource.data.campusId) || isOrganizer(resource.data.campusId));
+      allow write: if false;
+    }
+    match /tribe_leaderboards/{id} {
+      allow read: if signedIn() && isMember(resource.data.campusId);
+      allow write: if false;
+    }
+
+    // ------------------------------------------------------------------
+    // Rewards / redemptions / vendors
+    // ------------------------------------------------------------------
+    match /rewards/{rewardId} {
+      allow read: if signedIn() && (isMember(resource.data.campusId) || isSuperAdmin());
+      allow write: if false; // upsertReward
+    }
+    match /redemptions/{redemptionId} {
+      allow read: if signedIn() && (resource.data.uid == uid() || isCampusAdmin(resource.data.campusId)
+        || (isVendor(resource.data.campusId) && membership(resource.data.campusId).get('vendorId', '') == resource.data.vendorId));
+      allow write: if false;
+    }
+    match /vendors/{vendorId} {
+      allow read: if signedIn() && (isCampusAdmin(resource.data.campusId)
+        || (isVendor(resource.data.campusId) && membership(resource.data.campusId).get('vendorId', '') == vendorId)
+        || isMember(resource.data.campusId));
+      allow write: if false;
+    }
+
+    // ------------------------------------------------------------------
+    // Referrals / friendships
+    // ------------------------------------------------------------------
+    match /referrals/{referredUid} {
+      allow read: if signedIn() && (resource.data.referrerUid == uid() || referredUid == uid() || isCampusAdmin(resource.data.campusId));
+      allow write: if false;
+    }
+    match /friendships/{friendshipId} {
+      allow read: if signedIn() && uid() in resource.data.uids;
+      allow write: if false; // sendFriendRequest / respondFriendRequest / removeFriend
+    }
+
+    // ------------------------------------------------------------------
+    // Brands & quests — brands only see their own accounts + aggregate stats
+    // ------------------------------------------------------------------
+    match /brand_accounts/{brandId} {
+      allow read: if signedIn() && (isSuperAdmin() || exists(/databases/$(database)/documents/brand_memberships/$(brandId + '_' + uid())));
+      allow write: if false;
+    }
+    match /brand_memberships/{id} {
+      allow read: if signedIn() && (resource.data.uid == uid() || isSuperAdmin());
+      allow write: if false;
+    }
+    match /quests/{questId} {
+      allow read: if signedIn() && (
+        isSuperAdmin()
+        || exists(/databases/$(database)/documents/brand_memberships/$(resource.data.brandId + '_' + uid()))
+        || (resource.data.status in ['live', 'paused', 'completed'] && resource.data.campusIds.hasAny([userDoc().data.get('activeCampusId', '')]) && isMember(userDoc().data.activeCampusId))
+        || (resource.data.status in ['submitted', 'approved', 'live', 'paused', 'completed', 'cancelled'] && resource.data.campusIds.hasAny([userDoc().data.get('activeCampusId', '')]) && isCampusAdmin(userDoc().data.activeCampusId))
+      );
+      allow write: if false;
+    }
+    match /quest_completions/{id} {
+      // Students see their own; admins their campus; brands NEVER read individual completions.
+      allow read: if signedIn() && (resource.data.uid == uid() || isCampusAdmin(resource.data.campusId));
+      allow write: if false;
+    }
+
+    // ------------------------------------------------------------------
+    // Notifications / surveys / analytics
+    // ------------------------------------------------------------------
+    match /notification_jobs/{id} {
+      allow read: if signedIn() && (resource.data.uid == uid() || isCampusAdmin(resource.data.campusId));
+      allow write: if false;
+    }
+    match /notification_delivery_logs/{id} {
+      allow read: if signedIn() && (resource.data.uid == uid() || isCampusAdmin(resource.data.campusId));
+      allow write: if false;
+    }
+    match /surveys/{surveyId} {
+      allow read: if signedIn() && isMember(resource.data.campusId);
+      allow write: if false;
+    }
+    match /survey_responses/{id} {
+      allow read: if signedIn() && (resource.data.uid == uid() || isCampusAdmin(resource.data.campusId));
+      allow write: if false;
+    }
+    // Lightweight client-side funnel events (feed_viewed, event_opened, ...). Create-only, own uid, small payload.
+    match /analytics_events/{id} {
+      allow create: if signedIn() && isActiveUser()
+        && request.resource.data.uid == uid()
+        && request.resource.data.event is string && request.resource.data.event.size() <= 60
+        && request.resource.data.keys().size() <= 14
+        && (!('campusId' in request.resource.data) || isMember(request.resource.data.campusId));
+      allow read, update, delete: if false;
+    }
+
+    // ------------------------------------------------------------------
+    // Ops: metrics, pilot, audit, reports, support
+    // ------------------------------------------------------------------
+    match /metrics_daily/{id} {
+      allow read: if signedIn() && isCampusAdmin(resource.data.campusId);
+      allow write: if false;
+    }
+    match /pilot_metrics/{id} {
+      allow read: if signedIn() && isCampusAdmin(resource.data.campusId);
+      allow write: if false;
+    }
+    match /audit_logs/{id} {
+      allow read: if signedIn() && (isSuperAdmin() || (resource.data.campusId != null && isCampusAdmin(resource.data.campusId)));
+      allow write: if false;
+    }
+    match /content_reports/{id} {
+      allow read: if signedIn() && (resource.data.reporterUid == uid() || isCampusAdmin(resource.data.campusId));
+      allow update: if signedIn() && isCampusAdmin(resource.data.campusId) && affectedKeys().hasOnly(['status', 'resolution', 'resolvedBy', 'resolvedAt']);
+      allow create, delete: if false; // reportContent
+    }
+    match /support_requests/{id} {
+      allow create: if signedIn() && request.resource.data.uid == uid() && request.resource.data.message is string && request.resource.data.message.size() <= 2000;
+      allow read: if signedIn() && (resource.data.uid == uid() || isCampusAdmin(resource.data.get('campusId', '')));
+      allow update: if signedIn() && isCampusAdmin(resource.data.get('campusId', '')) && affectedKeys().hasOnly(['status', 'response', 'respondedBy', 'respondedAt']);
+      allow delete: if false;
+    }
+    match /data_exports/{id} {
+      allow read: if signedIn() && resource.data.uid == uid();
+      allow write: if false;
+    }
+
+    function friendshipId(a, b) {
+      return a < b ? a + '_' + b : b + '_' + a;
+    }
+  }
+}

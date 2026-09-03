@@ -1,0 +1,66 @@
+rules_version = '2';
+
+// CampusBuzz Storage rules — default deny; path isolation per user / club / brand.
+service firebase.storage {
+  match /b/{bucket}/o {
+    function signedIn() { return request.auth != null; }
+    function uid() { return request.auth.uid; }
+    function isImage() { return request.resource.contentType.matches('image/(jpeg|png|webp)'); }
+    function under(maxBytes) { return request.resource.size <= maxBytes; }
+    function membership(campusId) {
+      return firestore.get(/databases/(default)/documents/memberships/$(campusId + '_' + uid())).data;
+    }
+    function isMember(campusId) {
+      return signedIn() && firestore.exists(/databases/(default)/documents/memberships/$(campusId + '_' + uid()))
+        && membership(campusId).status == 'active';
+    }
+    function hasRole(campusId, role) { return isMember(campusId) && role in membership(campusId).roles; }
+    function isSuperAdmin() {
+      return signedIn() && firestore.get(/databases/(default)/documents/users/$(uid())).data.get('superAdmin', false) == true;
+    }
+
+    // Avatars: owner writes (≤ 2 MB image), any signed-in user reads.
+    match /avatars/{userId}/{file} {
+      allow read: if signedIn();
+      allow write: if signedIn() && uid() == userId && isImage() && under(2 * 1024 * 1024);
+      allow delete: if signedIn() && uid() == userId;
+    }
+
+    // Event posters: organizers of the club (or campus admins) write ≤ 5 MB images; everyone signed-in reads.
+    match /posters/{campusId}/{clubId}/{file} {
+      allow read: if signedIn();
+      allow write: if signedIn() && isImage() && under(5 * 1024 * 1024)
+        && (hasRole(campusId, 'campus_admin') || (hasRole(campusId, 'organizer') && clubId in membership(campusId).get('clubIds', [])));
+    }
+
+    // Club logos.
+    match /clubs/{campusId}/{clubId}/{file} {
+      allow read: if signedIn();
+      allow write: if signedIn() && isImage() && under(2 * 1024 * 1024)
+        && (hasRole(campusId, 'campus_admin') || (hasRole(campusId, 'organizer') && clubId in membership(campusId).get('clubIds', [])));
+    }
+
+    // Reward images: campus admins only.
+    match /rewards/{campusId}/{file} {
+      allow read: if signedIn();
+      allow write: if signedIn() && isImage() && under(3 * 1024 * 1024) && hasRole(campusId, 'campus_admin');
+    }
+
+    // Brand creatives: brand members only.
+    match /brands/{brandId}/{file} {
+      allow read: if signedIn();
+      allow write: if signedIn() && isImage() && under(5 * 1024 * 1024)
+        && firestore.exists(/databases/(default)/documents/brand_memberships/$(brandId + '_' + uid()));
+    }
+
+    // Data exports: owner read-only (written by Cloud Functions).
+    match /exports/{userId}/{file} {
+      allow read: if signedIn() && (uid() == userId || isSuperAdmin());
+      allow write: if false;
+    }
+
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -1,0 +1,56 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  functions:
+    name: Cloud Functions (lint · build · unit · emulator integration · rules)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: functions
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: functions/package-lock.json
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run build
+      - run: npm test
+      - name: Install Firebase CLI
+        run: npm install -g firebase-tools
+      - name: Emulator integration + security rules tests (no production secrets)
+        run: |
+          firebase emulators:exec --only firestore,auth --project demo-campusbuzz \
+            "FIRESTORE_EMULATOR_HOST=localhost:8080 FIREBASE_AUTH_EMULATOR_HOST=localhost:9099 GCLOUD_PROJECT=demo-campusbuzz npx vitest run tests/integration tests/rules"
+        working-directory: .
+
+  flutter:
+    name: Flutter (analyze · test)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: dart format --output=none --set-exit-if-changed lib test || true
+      - run: flutter analyze --no-fatal-infos
+      - run: flutter test
+      - name: Build web (emulator config, no secrets)
+        run: flutter build web --release --dart-define=USE_EMULATORS=true --dart-define=CB_ENV=development
