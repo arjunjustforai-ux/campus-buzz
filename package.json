@@ -1,0 +1,17 @@
+{
+  "name": "campusbuzz-dev",
+  "private": true,
+  "version": "1.0.0",
+  "description": "CampusBuzz local development commands. Cross-platform: identical on Windows (cmd/PowerShell), macOS and Linux. No `make`, no bash required.",
+  "scripts": {
+    "doctor": "node scripts/doctor.mjs",
+    "setup": "flutter pub get && npm --prefix functions install && npm --prefix functions run build",
+    "emulators": "npm --prefix functions run build && firebase emulators:start --project demo-campusbuzz",
+    "seed": "npm --prefix functions run seed",
+    "app": "flutter run -d chrome --dart-define=USE_EMULATORS=true --dart-define=CB_ENV=development",
+    "app:android": "flutter run -d android --dart-define=USE_EMULATORS=true --dart-define=CB_ENV=development",
+    "build:web": "flutter build web --release --dart-define=USE_EMULATORS=true --dart-define=CB_ENV=development",
+    "test": "flutter test && npm --prefix functions test",
+    "analyze": "flutter analyze && npm --prefix functions run lint"
+  }
+}

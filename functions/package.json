@@ -18,7 +18,7 @@
     "serve": "npm run build && firebase emulators:start --only functions",
     "deploy": "firebase deploy --only functions",
     "build:tools": "tsc -p tsconfig.tools.json",
-    "seed": "npm run build:tools && FIRESTORE_EMULATOR_HOST=${FIRESTORE_EMULATOR_HOST:-localhost:8080} FIREBASE_AUTH_EMULATOR_HOST=${FIREBASE_AUTH_EMULATOR_HOST:-localhost:9099} GCLOUD_PROJECT=demo-campusbuzz node lib-tools/tools/seed.js",
+    "seed": "npm run build:tools && node lib-tools/tools/seed.js",
     "seed:exec": "npm run build:tools && firebase emulators:exec --only firestore,auth --project demo-campusbuzz \"node lib-tools/tools/seed.js\""
   },
   "dependencies": {

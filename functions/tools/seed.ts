@@ -1,14 +1,17 @@
 /**
  * CampusBuzz deterministic EMULATOR seed.
  *
- *   npm run seed            (from /functions, with emulators running)
+ *   npm run seed            (repo root, with the emulators running)
  *
- * Refuses to run unless FIRESTORE_EMULATOR_HOST is set — never touches production.
+ * Emulator-only: refuses to run against anything but a `demo-` project (see
+ * tools/emulatorEnv.ts). Works on Windows, macOS and Linux with no env setup.
  * Creates a JAGSoM-style demo campus, Tribes, clubs, organizers, 14 upcoming +
  * 10 past events, synthetic students, check-in history, feedback, rewards,
  * vendors, redemptions, a brand + quest, a survey and daily metrics.
  * All people are synthetic. Credentials below are for the local emulator only.
  */
+// Must come first: points the Admin SDK at the emulator before it is constructed.
+import "./emulatorEnv";
 import { getAuth } from "firebase-admin/auth";
 import { db, FieldValue, Timestamp } from "../src/lib/firestore";
 import { COL, ids } from "../src/config/collections";
@@ -19,12 +22,7 @@ import { updateStreak, EMPTY_STREAK } from "../src/domain/streaks";
 import { hourBucket, isoWeekKey, localParts } from "../src/domain/time";
 import type { StreakState } from "../src/domain/types";
 
-if (!process.env.FIRESTORE_EMULATOR_HOST || !process.env.FIREBASE_AUTH_EMULATOR_HOST) {
-  console.error("Refusing to seed: FIRESTORE_EMULATOR_HOST and FIREBASE_AUTH_EMULATOR_HOST must point to the emulator.");
-  process.exit(1);
-}
-
-const PROJECT = process.env.GCLOUD_PROJECT || "demo-campusbuzz";
+const PROJECT = process.env.GCLOUD_PROJECT!;
 const auth = getAuth();
 
 const CAMPUS_ID = "jagsom-demo";

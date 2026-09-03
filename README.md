@@ -15,41 +15,46 @@ development. Every economy- or security-sensitive action is a server-side transa
 
 ## Run it locally (5 minutes)
 
-Prerequisites: Flutter stable (3.47+), Node 22, Java 17+ (emulators), `npm i -g firebase-tools`.
+Works the same on **Windows, macOS and Linux** — every command below is `npm run`,
+so you do not need `make` or a bash shell.
+
+**Install once:** [Node 20+](https://nodejs.org), [Flutter stable](https://docs.flutter.dev/get-started/install),
+a [JDK 17+](https://adoptium.net) (the Firestore emulator is a Java program and will not
+start without it), then `npm install -g firebase-tools`. You do **not** need a Firebase
+account or `firebase login` for this — everything runs on local emulators.
 
 ```bash
-flutter pub get
-cd functions && npm install && npm run build && cd ..
+git clone https://github.com/arjunjustforai-ux/campus-buzz && cd campus-buzz
 
-# terminal 1 — emulators (auth, firestore, functions, storage, UI at :4000)
-firebase emulators:start --project demo-campusbuzz
+npm run setup       # flutter pub get + functions install + build
+npm run doctor      # checks Node, Java, Flutter, CLI, build state, ports
 
-# terminal 2 — deterministic demo campus (emulator only; refuses to run elsewhere)
-cd functions && npm run seed && cd ..
-
-# terminal 3 — the app
-flutter run -d chrome --dart-define=USE_EMULATORS=true --dart-define=CB_ENV=development
-# Android emulator: flutter run -d android --dart-define=USE_EMULATORS=true   (10.0.2.2 is used automatically)
+npm run emulators   # terminal 1 — leave running, wait for "All emulators ready!"
+npm run seed        # terminal 2 — creates the demo campus (re-run after each restart)
+npm run app         # terminal 3 — opens Chrome
 ```
 
-Or simply `make setup && make emulators` / `make seed` / `make run-web`.
+On the sign-in screen tap a demo chip (`student`, `organizer`, `admin`, `brand`,
+`vendor`, `superadmin`); the password is `CampusBuzz!123`. Emulator UI:
+http://localhost:4000. Then follow [docs/DEMO_SCRIPT.md](docs/DEMO_SCRIPT.md).
 
-Demo accounts (emulator only, password `CampusBuzz!123`): `student@`, `organizer@`,
-`ambassador@`, `admin@`, `brand@`, `vendor@`, `superadmin@` `demo.campusbuzz.test`.
-Follow `docs/DEMO_SCRIPT.md`.
+**If something does not work, run `npm run doctor` first** — it names the missing
+piece instead of leaving you with a vague error in the UI. The two most common
+causes are no JDK installed (emulators never start) and forgetting `npm run seed`
+after restarting the emulators, since emulator data is in-memory.
 
 ## Validate
 
 ```bash
-flutter analyze && flutter test
-cd functions && npm run lint && npm test && npm run build
-# emulator-backed callable integration + Firestore rules tests
-firebase emulators:exec --only firestore,auth --project demo-campusbuzz \
-  "cd functions && FIRESTORE_EMULATOR_HOST=localhost:8080 FIREBASE_AUTH_EMULATOR_HOST=localhost:9099 GCLOUD_PROJECT=demo-campusbuzz npx vitest run tests/integration tests/rules"
+npm run analyze          # flutter analyze + functions lint
+npm test                 # flutter test + functions domain tests
+
+# emulator-backed callable integration + Firestore security-rules tests
+npm --prefix functions run test:integration
+npm --prefix functions run test:rules
 ```
 
-`make test` runs the whole gate; `.github/workflows/ci.yml` runs it on every PR
-without any production secret.
+`.github/workflows/ci.yml` runs the same gate on every PR, with no production secrets.
 
 ## Configuration
 
