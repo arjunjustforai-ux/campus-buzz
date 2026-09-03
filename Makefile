@@ -12,7 +12,10 @@ functions: ## Build Cloud Functions
 	cd functions && npm run build
 
 emulators: functions ## Start the Firebase Emulator Suite (auth, firestore, functions, storage, ui)
-	firebase emulators:start --project demo-campusbuzz --import=./emulator-data --export-on-exit=./emulator-data
+	@# --import only when a previous export exists, otherwise the CLI aborts on a fresh clone.
+	firebase emulators:start --project demo-campusbuzz \
+	  $$([ -f emulator-data/firebase-export-metadata.json ] && echo --import=./emulator-data) \
+	  --export-on-exit=./emulator-data
 
 seed: ## Seed the running emulator with the JAGSoM demo campus (emulator only)
 	cd functions && npm run seed

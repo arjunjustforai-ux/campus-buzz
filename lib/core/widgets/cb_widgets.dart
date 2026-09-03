@@ -111,8 +111,10 @@ class CbCoinBadge extends StatelessWidget {
 
 /// Brand-styled placeholder when an image is absent.
 class CbPosterPlaceholder extends StatelessWidget {
-  const CbPosterPlaceholder({super.key, required this.title, this.height = 160, this.seed = 0});
+  const CbPosterPlaceholder({super.key, required this.title, this.height = 160, this.seed = 0, this.bottomInset = 0});
   final String title; final double height; final int seed;
+  /// Space reserved at the bottom so overlaid chips never sit on the title.
+  final double bottomInset;
   @override
   Widget build(BuildContext context) {
     final colors = [[CbColors.orange, const Color(0xFF7A2A0B)], [const Color(0xFF6B8F1A), CbColors.dark], [const Color(0xFF3B1F7A), CbColors.orange], [const Color(0xFF0E5C6B), CbColors.lime]];
@@ -120,9 +122,9 @@ class CbPosterPlaceholder extends StatelessWidget {
     return Container(
       height: height,
       decoration: BoxDecoration(gradient: LinearGradient(colors: c, begin: Alignment.topLeft, end: Alignment.bottomRight)),
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.fromLTRB(16, 16, 16, 16 + bottomInset),
       alignment: Alignment.bottomLeft,
-      child: Text(title.toUpperCase(), maxLines: 3, overflow: TextOverflow.ellipsis, style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: Colors.white.withValues(alpha: 0.92), height: 1.05, letterSpacing: -0.5)),
+      child: Text(title.toUpperCase(), maxLines: 2, overflow: TextOverflow.ellipsis, style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: Colors.white.withValues(alpha: 0.92), height: 1.05, letterSpacing: -0.5)),
     );
   }
 }

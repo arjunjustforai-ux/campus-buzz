@@ -51,8 +51,8 @@ class _EventCardState extends ConsumerState<EventCard> {
               borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
               child: Stack(children: [
                 e.posterUrl != null && e.posterUrl!.isNotEmpty
-                    ? CachedNetworkImage(imageUrl: e.posterUrl!, height: 150, fit: BoxFit.cover, width: double.infinity, placeholder: (_, __) => const CbSkeleton(height: 150, radius: 0), errorWidget: (_, __, ___) => CbPosterPlaceholder(title: e.title, height: 150, seed: e.id.hashCode))
-                    : CbPosterPlaceholder(title: e.title, height: 150, seed: e.id.hashCode),
+                    ? CachedNetworkImage(imageUrl: e.posterUrl!, height: 150, fit: BoxFit.cover, width: double.infinity, placeholder: (_, __) => const CbSkeleton(height: 150, radius: 0), errorWidget: (_, __, ___) => CbPosterPlaceholder(title: e.title, height: 150, seed: e.id.hashCode, bottomInset: widget.reasons.isNotEmpty ? 34 : 0))
+                    : CbPosterPlaceholder(title: e.title, height: 150, seed: e.id.hashCode, bottomInset: widget.reasons.isNotEmpty ? 34 : 0),
                 Positioned(left: 12, top: 12, child: Container(padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6), decoration: BoxDecoration(color: CbColors.dark.withValues(alpha: 0.75), borderRadius: BorderRadius.circular(10)), child: Text('${Fmt.dayLabel(e.startAt, tz)} · ${Fmt.time(e.startAt, tz)}', style: t.labelMedium?.copyWith(color: Colors.white)))),
                 if (e.isCancelled) Positioned(right: 12, top: 12, child: CbStatusPill(label: 'Cancelled', color: CbColors.danger, icon: Icons.cancel)),
                 if (!e.isCancelled && e.isCrossCampus) const Positioned(right: 12, top: 12, child: CbStatusPill(label: 'Inter-campus', color: CbColors.info, icon: Icons.public)),

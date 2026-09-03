@@ -50,6 +50,9 @@ app.*.map.json
 # CampusBuzz
 .env
 .env.json
+functions/.env
+functions/.env.local
+functions/.env.*.local
 functions/node_modules/
 functions/lib/
 functions/lib-tools/
